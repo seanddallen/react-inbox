@@ -14,15 +14,136 @@ class App extends Component {
     .then(messages => this.setState({messages}))
   }
 
+  toggleRead = (selectedMessage) => {
+    let otherMessages = this.state.messages.filter(message => selectedMessage.id != message.id)
+    let changedMessage = {
+      id: selectedMessage.id,
+      subject: selectedMessage.subject,
+      read: !selectedMessage.read,
+      starred: selectedMessage.starred,
+      labels: selectedMessage.labels
+    }
+    this.setState({messages: otherMessages.concat(changedMessage).sort((a, b) => a.id-b.id) })
+  }
+
+  toggleStarred = (selectedMessage) => {
+    let otherMessages = this.state.messages.filter(message => selectedMessage.id != message.id)
+    let changedMessage = {
+      id: selectedMessage.id,
+      subject: selectedMessage.subject,
+      read: selectedMessage.read,
+      starred: !selectedMessage.starred,
+      labels: selectedMessage.labels
+    }
+    this.setState({messages: otherMessages.concat(changedMessage).sort((a, b) => a.id-b.id) })
+  }
+
+  toggleSelected = (selectedMessage) => {
+    let otherMessages = this.state.messages.filter(message => selectedMessage.id != message.id)
+    let changedMessage = {
+      id: selectedMessage.id,
+      subject: selectedMessage.subject,
+      read: selectedMessage.read,
+      starred: selectedMessage.starred,
+      labels: selectedMessage.labels,
+      selected: !selectedMessage.selected || false
+    }
+    this.setState({messages: otherMessages.concat(changedMessage).sort((a, b) => a.id-b.id) })
+  }
+
+  selectButtonFunc = (type) => {
+
+    let messagesStateCopy = this.toolbarCopyCurrentState();
+
+    if(type.includes('check')){
+      messagesStateCopy = this.state.messages.map(message => {
+          message.selected = false
+          return message
+        })
+      } else{
+      messagesStateCopy = this.state.messages.map(message => {
+          message.selected = true
+          return message
+      })
+    }
+    this.setState({messages: messagesStateCopy});
+  }
+
+  setUnreadFunc = () => {
+    let newState = this.state.messages.map(message => {
+      if(message.selected){
+        message.read = false
+        return message
+      }
+    })
+    this.setState({ messages: newState })
+  }
+
+  setReadFunc = () => {
+    let newState = this.state.messages.map(message => {
+      if(message.selected){
+        message.read = true
+        return message
+      }
+    })
+    this.setState({ messages: newState })
+  }
+
+  deleteMessages = () => {
+    let newState = this.state.messages.filter(message => !message.selected)
+    this.setState({ messages: newState })
+  }
+
+  addLabel = (label) => {
+    let newState = this.state.messages.map(message => {
+      if(message.selected && !message.labels.includes(label)){
+        message.labels.push(label)
+        return message
+      }
+    })
+    this.setState({ messages: newState })
+  }
+
+  removeLabel = (label) => {
+    let newState = this.state.messages.map(message => {
+      if(message.selected){
+        message.labels = message.labels.filter(l => l !== label)
+      }
+      return message
+      // if(message.selected && message.labels.includes(label)){
+      //   message.labels.push(label)
+      //   return message
+      // }
+    })
+    this.setState({ messages: newState })
+  }
+
   render() {
+    let numOfSelectedMessages = this.state.messages.filter(message => message.selected).length;
+
     return (
       <body className="container">
         <header>
 
         </header>
         <main>
-          <Toolbar />
-          <MessageList messages={this.state.messages} />
+          <Toolbar
+            messages={this.state.messages}
+            numOfSelectedMessages={numOfSelectedMessages}
+            selectButtonFunc={this.selectButtonFunc}
+            setUnreadFunc={this.setUnreadFunc}
+            setReadFunc={this.setUnreadFunc}
+            deleteMessages={this.deleteMessages}
+            addLabel={this.addLabel}
+            removeLabel={this.removeLabel}
+          />
+          <MessageList
+            messages={this.state.messages}
+            toggleRead={this.toggleRead}
+            toggleStarred={this.toggleStarred}
+            toggleSelected={this.toggleSelected}
+            selectButtonFunc={this.selectButtonFunc}
+          />
         </main>
       </body>
     );
