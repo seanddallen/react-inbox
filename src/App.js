@@ -1,17 +1,38 @@
 import React, { Component } from 'react';
+import axios from 'axios'
 import Toolbar from './Toolbar.js';
 import MessageList from './MessageList.js';
 import './App.css';
 
 class App extends Component {
   state = {
-    messages: []
+    messages: [],
+    showCompose: false
   }
 
-  componentDidMount(){
-    fetch('http://localhost:8082/api/messages')
-    .then(res => res.json())
-    .then(messages => this.setState({messages}))
+  componentDidMount = async () => {
+    let messages = await axios.get('http://localhost:8082/api/messages')
+    this.setState({ messages: messages.data})
+    // .then(res => res.json())
+    // .then(messages => this.setState({messages}))
+  }
+
+  addMessage = async (message) => {
+    let newMessage = {
+      subject: message.subject,
+      body: message.body,
+      labels: JSON.stringify([]),
+      read: false,
+      selected: false,
+      starred: false
+    }
+    let newMessages = await axios.post('http://localhost:8082/api/messages/:id', newMessage)
+  }
+
+  toggleComposeForm = () => {
+    this.setState({
+      showCompose: !this.state.showCompose
+    })
   }
 
   toggleRead = (selectedMessage) => {
@@ -136,6 +157,8 @@ class App extends Component {
             deleteMessages={this.deleteMessages}
             addLabel={this.addLabel}
             removeLabel={this.removeLabel}
+            toggleComposeForm={this.toggleComposeForm}
+            showCompose={this.state.showCompose}
           />
           <MessageList
             messages={this.state.messages}
