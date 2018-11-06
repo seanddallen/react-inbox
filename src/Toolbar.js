@@ -3,12 +3,17 @@ import React, {Component} from 'react'
 class Toolbar extends Component {
   state = {
     subject: '',
-    body: ''
+    body: '',
+    labels: JSON.stringify([]),
+    read: false,
+    selected: false,
+    starred: false
   }
 
   handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     this.props.addMessage(this.state)
+    console.log(this.state)
   }
 
   render(){
@@ -42,11 +47,11 @@ class Toolbar extends Component {
               {countedUnread > 1 || countedUnread < 1 ? 'unread messages' : 'unread message'}
             </p>
 
-            <button className="btn btn-danger" disabled={!countedSelected} onClick={() => this.props.toggleComposeForm}>
+            <button className="btn btn-danger" onClick={() => this.props.toggleComposeForm()}>
               <i className="fa fa-plus"></i>
             </button>
 
-            <button className="btn btn-default" disabled={!countedSelected} onClick={() => this.props.selectButtonFunc(selectButtonClass)}>
+            <button className="btn btn-default" onClick={() => this.props.selectButtonFunc(selectButtonClass)}>
               <i className={`fa ${selectButtonClass}`}></i>
             </button>
 
@@ -68,7 +73,7 @@ class Toolbar extends Component {
               <option value="gschool">gschool</option>
             </select>
 
-            <button className="btn btn-default" disabled={!countedSelected} onClick={() => this.prop.deleteMessages()}>
+            <button className="btn btn-default" disabled={!countedSelected} onClick={() => this.props.deleteMessages()}>
               <i className="fa fa-trash-o"></i>
             </button>
           </div>
@@ -89,12 +94,14 @@ class Toolbar extends Component {
             <div className="form-group">
               <label htmlFor="body" className="col-sm-2 control-label">Body</label>
               <div className="col-sm-8">
-                <textarea name="body" id="body" className="form-control" value={this.state.body} onChange={(e) => this.setState({ body: e.target.value})} ></textarea>
+                <textarea name="body" id="body" className="form-control" value={this.state.body} onChange={(e) => this.setState({ body: e.target.value})}></textarea>
               </div>
             </div>
             <div className="form-group">
               <div className="col-sm-8 col-sm-offset-2">
-                <input type="submit" value="Send" className="btn btn-primary" />
+                <button type="submit" value="Send" className="btn btn-primary" onClick={this.handleSubmit}>
+                  Send
+                </button>
               </div>
             </div>
           </form>

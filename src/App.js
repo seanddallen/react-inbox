@@ -18,16 +18,14 @@ class App extends Component {
   }
 
   addMessage = async (message) => {
-    let newMessage = {
-      subject: message.subject,
-      body: message.body,
-      labels: JSON.stringify([]),
-      read: false,
-      selected: false,
-      starred: false
-    }
-    let newMessages = await axios.post('http://localhost:8082/api/messages/:id', newMessage)
-  }
+
+    let newMessage = await axios.post('http://localhost:8082/api/messages/', message)
+    console.log('data', newMessage)
+    this.setState({
+      messages: [...this.state.messages, newMessage.data],
+      showCompose: !this.state.showCompose
+    })
+}
 
   toggleComposeForm = () => {
     this.setState({
@@ -72,6 +70,10 @@ class App extends Component {
     this.setState({messages: otherMessages.concat(changedMessage).sort((a, b) => a.id-b.id) })
   }
 
+  toolbarCopyCurrentState(){
+    return [...this.state.messages]
+  }
+
   selectButtonFunc = (type) => {
 
     let messagesStateCopy = this.toolbarCopyCurrentState();
@@ -94,8 +96,8 @@ class App extends Component {
     let newState = this.state.messages.map(message => {
       if(message.selected){
         message.read = false
-        return message
       }
+      return message
     })
     this.setState({ messages: newState })
   }
@@ -104,9 +106,10 @@ class App extends Component {
     let newState = this.state.messages.map(message => {
       if(message.selected){
         message.read = true
-        return message
       }
+      return message
     })
+
     this.setState({ messages: newState })
   }
 
@@ -119,8 +122,8 @@ class App extends Component {
     let newState = this.state.messages.map(message => {
       if(message.selected && !message.labels.includes(label)){
         message.labels.push(label)
-        return message
       }
+      return message
     })
     this.setState({ messages: newState })
   }
@@ -141,9 +144,11 @@ class App extends Component {
 
   render() {
     let numOfSelectedMessages = this.state.messages.filter(message => message.selected).length;
+    console.log('numOfSelectedMessages', numOfSelectedMessages)
+    console.log('message', this.state.messages)
 
     return (
-      <body className="container">
+      <div className="container">
         <header>
 
         </header>
@@ -153,12 +158,13 @@ class App extends Component {
             numOfSelectedMessages={numOfSelectedMessages}
             selectButtonFunc={this.selectButtonFunc}
             setUnreadFunc={this.setUnreadFunc}
-            setReadFunc={this.setUnreadFunc}
+            setReadFunc={this.setReadFunc}
             deleteMessages={this.deleteMessages}
             addLabel={this.addLabel}
             removeLabel={this.removeLabel}
             toggleComposeForm={this.toggleComposeForm}
             showCompose={this.state.showCompose}
+            addMessage={this.addMessage}
           />
           <MessageList
             messages={this.state.messages}
@@ -168,7 +174,7 @@ class App extends Component {
             selectButtonFunc={this.selectButtonFunc}
           />
         </main>
-      </body>
+      </div>
     );
   }
 }
